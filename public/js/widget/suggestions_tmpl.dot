@@ -1,0 +1,24 @@
+{{~ it :p }}
+ {{
+   var img = '/img/suggestion_search.png'
+     , data = '';
+
+    if (p.image) {
+      img = '/images/' + p.image + '.svg';
+    }
+
+    data = 'data-lat="' + p.stop_lat + '" data-lng="' + p.stop_lon + '"';
+  }}
+
+  <li {{= data }}>
+    <div class="image" aria-hidden="true">
+      <img src="{{= img }}" />
+    </div><span>
+      {{= p.stop_name }}
+
+      {{? p.stop_code }}
+        <small>Stop Code: <em>{{= p.stop_code }}</em></small>
+      {{?}}
+    </span>
+  </li>
+{{~}}

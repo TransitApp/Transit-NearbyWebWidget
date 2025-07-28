@@ -1,0 +1,100 @@
+{{## def.route_display_short_name:it:
+  {{
+    var size = it.disp.elements[1] ? 28 : 34;
+  }}
+
+{{? it.disp.elements[0] }}<img class='img{{= size }}' src='{{= "/images/" + it.disp.elements[0] + ".svg"}}' />{{?}}
+{{? it.disp.elements[1] }}<span>{{= it.disp.elements[1] }}</span>{{?}}
+{{? it.disp.elements[2] }}<img class='img{{= size }}' src='{{= "/images/" + it.disp.elements[2] + ".svg"}}' />{{?}}
+<em>{{? it.branch }}{{= it.branch }}{{?}}</em>
+#}}
+
+{{## def.route_style:route:
+  background: #{{= route.route_color }};
+  color: #{{= route.route_text_color }};
+#}}
+
+{{## def.route_view:route:
+  {{
+    var darkText = route.route_text_color == '000000';
+    var branchCode = null;
+
+    if (route.itineraries && route.itineraries[route.current_itinerary_index]) {
+        var currentItinerary = route.itineraries[route.current_itinerary_index];
+        if (currentItinerary.schedule_items && currentItinerary.schedule_items.length) {
+            branchCode = currentItinerary.schedule_items[0].branch_code;
+        }
+    }
+  }}
+
+  <div class="route {{= (darkText ? 'white' : '') }}" style="{{# def.route_style:route }}" role="tablist">
+    <h1 role="presentation">
+      {{? route.route_display_short_name }}
+        {{# def.route_display_short_name:{
+            disp: route.route_display_short_name,
+            white: darkText,
+            branch: branchCode
+        } }}
+      {{??}}
+        {{= route.short_name }}
+      {{?}}
+    </h1>
+
+    <div class="pagination" role="presentation">
+      {{~ route.itineraries :dir:index }}<i class="{{= (index == route.current_itinerary_index ? 'active' : '') }}"></i>{{~}}
+    </div>
+
+    {{~ route.itineraries :dir:index }}
+      {{
+        var selected = index == route.current_itinerary_index;
+        var headsign = dir.merged_headsign ? dir.merged_headsign : dir.headsign;
+        var branchCode = null;
+
+        if (dir.schedule_items && dir.schedule_items.length) {
+            branchCode = dir.schedule_items[0].branch_code;
+        }
+      }}
+
+      <div class="content {{= selected ? 'active' : '' }}" style="{{= (index == 0 ? 'margin-left: -' + (route.current_itinerary_index * 100) + '%;' : '') }}" role="tab" tabindex="{{= selected ? '0' : '-1' }}" aria-selected="{{= selected }}">
+        <div class="info">
+          <h1>
+            {{? route.route_display_short_name }}
+              {{# def.route_display_short_name:{
+                disp: route.route_display_short_name,
+                branch: branchCode
+              } }}
+            {{??}}
+              {{= route.short_name }}
+            {{?}}
+          </h1>
+
+          <h3 aria-label="Line {{= route.short_name }}, Direction {{= headsign }}, ">
+            {{= headsign }}
+          </h3>
+
+          <p aria-hidden="true">{{= dir.closest_stop ? dir.closest_stop.stop_name : '' }}</p>
+        </div><div class="time">
+          {{~ dir.schedule_items :item:i }}
+            {{? i < 3}}
+              <h2 data-time="{{= item.departure_time }}">
+                <span></span>
+
+                {{? item.is_real_time }}
+                  <i class="realtime"></i>
+                {{?}}
+                <small class="{{= (item.is_last ? 'last' : '') }}"> {{= (item.is_last ? 'last' : 'min') }}</small>
+              </h2>
+            {{?}}
+          {{~}}
+
+          <small>minutes</small>
+          <i class="inactive"></i>
+        </div>
+      </div>
+    {{~}}
+  </div>
+#}}
+
+{{~ it.routes :route }}
+  {{# def.route_view:route }}
+{{~}}
